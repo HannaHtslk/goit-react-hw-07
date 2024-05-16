@@ -4,8 +4,10 @@ import { useId } from "react";
 
 import s from "./ContactForm.module.css";
 import { ErrorMessage } from "formik";
-import { useDispatch } from "react-redux";
-import { addContact } from "../../redux/contactsSlice";
+import { useDispatch, useSelector } from "react-redux";
+import { selectIsLoading } from "../../redux/contactsSlice";
+import Loader from "../../components/Loader/Loader";
+import { addContactsThunk } from "../../redux/contactsOps";
 
 const ContactForm = () => {
   const dispatch = useDispatch();
@@ -22,47 +24,52 @@ const ContactForm = () => {
   });
 
   const handleSubmit = (values, actions) => {
-    dispatch(addContact(values));
+    dispatch(addContactsThunk(values));
 
     actions.resetForm();
   };
 
   const nameId = useId();
   const phoneId = useId();
+
+  const isLoading = useSelector(selectIsLoading);
   return (
-    <Formik
-      initialValues={{ name: "", number: "" }}
-      onSubmit={handleSubmit}
-      validationSchema={ContactSchema}
-    >
-      <Form className={s.container}>
-        <div>
-          <label htmlFor={nameId}>Name</label>
-          <Field
-            className={s.input}
-            type="text"
-            name="name"
-            id={nameId}
-          ></Field>
-          <ErrorMessage name="name" component="span" className={s.error} />
-        </div>
+    <>
+      {isLoading && <Loader />}
+      <Formik
+        initialValues={{ name: "", number: "" }}
+        onSubmit={handleSubmit}
+        validationSchema={ContactSchema}
+      >
+        <Form className={s.container}>
+          <div>
+            <label htmlFor={nameId}>Name</label>
+            <Field
+              className={s.input}
+              type="text"
+              name="name"
+              id={nameId}
+            ></Field>
+            <ErrorMessage name="name" component="span" className={s.error} />
+          </div>
 
-        <div>
-          <label htmlFor={phoneId}>Number</label>
-          <Field
-            className={s.input}
-            type="text"
-            name="number"
-            id={phoneId}
-          ></Field>
-          <ErrorMessage name="number" component="span" className={s.error} />
-        </div>
+          <div>
+            <label htmlFor={phoneId}>Number</label>
+            <Field
+              className={s.input}
+              type="text"
+              name="number"
+              id={phoneId}
+            ></Field>
+            <ErrorMessage name="number" component="span" className={s.error} />
+          </div>
 
-        <button className={s.btn} type="submit">
-          Add contact
-        </button>
-      </Form>
-    </Formik>
+          <button className={s.btn} type="submit">
+            Add contact
+          </button>
+        </Form>
+      </Formik>
+    </>
   );
 };
 

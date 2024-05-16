@@ -1,5 +1,9 @@
 import { createSlice, nanoid } from "@reduxjs/toolkit";
-import { deleteContactsThunk, fetchContactsThunk } from "./contactsOps";
+import {
+  addContactsThunk,
+  deleteContactsThunk,
+  fetchContactsThunk,
+} from "./contactsOps";
 
 const initialState = {
   items: [],
@@ -46,12 +50,30 @@ const contactsSlice = createSlice({
       .addCase(fetchContactsThunk.rejected, (state, { payload }) => {
         state.isError = payload;
       })
+      .addCase(deleteContactsThunk.pending, (state) => {
+        state.isLoading = true;
+      })
       .addCase(deleteContactsThunk.fulfilled, (state, { payload }) => {
         state.items = state.items.filter((item) => item.id !== payload);
+        state.isLoading = false;
+      })
+      .addCase(deleteContactsThunk.rejected, (state, { payload }) => {
+        state.isError = payload;
+      })
+      .addCase(addContactsThunk.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(addContactsThunk.fulfilled, (state, { payload }) => {
+        state.items.push(payload);
+        state.isLoading = false;
+      })
+      .addCase(addContactsThunk.rejected, (state, { payload }) => {
+        state.isError = payload;
       });
   },
 });
 
 export const contactsReducer = contactsSlice.reducer;
 export const { addContact, deleteContact } = contactsSlice.actions;
-export const { selectContacts } = contactsSlice.selectors;
+export const { selectContacts, selectIsLoading, selectIsError } =
+  contactsSlice.selectors;
